@@ -1,3 +1,9 @@
+/**
+ * @author Lloyd
+ * @date 2025/09/12
+ * @description Contract transaction analyzer for comprehensive profit analysis and daily transaction monitoring on Ethereum blockchain
+ */
+
 import { EtherscanAPI } from "./etherscan";
 import {
   EtherscanTransaction,
@@ -5,11 +11,26 @@ import {
   DailyAnalysis,
 } from "../types/types";
 
+/**
+ * Comprehensive contract transaction analyzer that provides detailed profit analysis and performance metrics.
+ * Integrates with Etherscan API to retrieve and analyze transaction data for specific contracts and time periods.
+ */
 export class ContractAnalyzer {
+  /** Etherscan API instance for blockchain data retrieval */
   private etherscanAPI: EtherscanAPI;
+  
+  /** Target contract address for transaction analysis (normalized to lowercase) */
   private contractAddress: string;
+  
+  /** Main wallet address for profit calculation (normalized to lowercase) */
   private mainWalletAddress: string;
 
+  /**
+   * Initializes the contract analyzer with required API credentials and addresses.
+   * @param {string} apiKey - Etherscan API key for authenticated requests
+   * @param {string} contractAddress - Target contract address to analyze
+   * @param {string} mainWalletAddress - Main wallet address for profit calculations
+   */
   constructor(
     apiKey: string,
     contractAddress: string,
@@ -20,32 +41,41 @@ export class ContractAnalyzer {
     this.mainWalletAddress = mainWalletAddress.toLowerCase();
   }
 
+  /**
+   * Performs comprehensive analysis of all contract transactions for a specific date.
+   * Retrieves transactions, calculates profits, and generates detailed daily analytics.
+   * @param {string} date - Target date in YYYY-MM-DD format for analysis
+   * @returns {Promise<DailyAnalysis>} Complete daily analysis including profit metrics and transaction details
+   */
   async analyzeDailyTransactions(date: string): Promise<DailyAnalysis> {
     console.log(`\n🔍 Analyzing transactions for ${date}...`);
 
-    // Parse date and create timestamp range
+    // Parse input date string and create UTC timestamp range for precise filtering
     const [year, month, day] = date.split("-").map((term) => Number(term));
 
+    // Create 24-hour timestamp range starting from 15:00 UTC
     const startTimestamp = Math.floor(
       Date.UTC(year, month - 1, day, 15, 0, 0) / 1000
     );
-    const endTimestamp = startTimestamp + 86400;
+    const endTimestamp = startTimestamp + 86400; // Add 24 hours in seconds
 
     console.log(`📅 Time range: ${startTimestamp} to ${endTimestamp}`);
 
-    // Get block numbers for the time range
+    // Retrieve blockchain block numbers corresponding to the timestamp range
     const latestBlock = await this.etherscanAPI.getLatestBlock();
     const startBlock = await this.etherscanAPI.getBlockByTimestamp(
       startTimestamp,
       "after"
     );
+    
+    // Handle future dates by using latest available block
     const currentTimestamp = Date.now() / 1000;
     let endBlock =
       endTimestamp > currentTimestamp
         ? latestBlock
         : await this.etherscanAPI.getBlockByTimestamp(endTimestamp, "before");
 
-    // Check if end block is beyond latest block
+    // Ensure end block doesn't exceed the latest available block
     if (endBlock > latestBlock) {
       console.log(
         `⚠️  End block ${endBlock} is beyond latest block ${latestBlock}, using latest block`
@@ -55,7 +85,7 @@ export class ContractAnalyzer {
 
     console.log(`🏗️  Block range: ${startBlock} to ${endBlock}`);
 
-    // Get all transactions for the contract in this range
+    // Retrieve all transactions for the target contract within the block range
     const transactions = await this.etherscanAPI.getContractTransactions(
       this.contractAddress,
       startBlock,
@@ -64,7 +94,7 @@ export class ContractAnalyzer {
 
     console.log(`📦 Found ${transactions.length} transactions`);
 
-    // Filter transactions by exact timestamp
+    // Apply precise timestamp filtering to ensure exact date matching
     const dayTransactions = transactions.filter((tx) => {
       const txTimestamp = parseInt(tx.timeStamp);
       return txTimestamp >= startTimestamp && txTimestamp < endTimestamp;
@@ -74,7 +104,7 @@ export class ContractAnalyzer {
       `✅ ${dayTransactions.length} transactions match the exact date range`
     );
 
-    // Analyze each transaction
+    // Process each transaction with detailed profit analysis
     const analyzedTransactions: TransactionProfit[] = [];
 
     for (let i = 0; i < dayTransactions.length; i++) {
@@ -85,11 +115,12 @@ export class ContractAnalyzer {
         }`
       );
 
+      // Perform comprehensive transaction analysis including internal transactions
       const profit = await this.analyzeTransaction(tx);
       analyzedTransactions.push(profit);
     }
 
-    // Calculate totals
+    // Calculate comprehensive daily metrics and aggregated statistics
     const totalProfit = analyzedTransactions.reduce(
       (sum, tx) => sum + tx.netProfit,
       BigInt(0)
@@ -113,24 +144,31 @@ export class ContractAnalyzer {
     };
   }
 
+  /**
+   * Analyzes a single transaction to calculate detailed profit metrics and internal value flows.
+   * Examines gas fees, internal transactions, and value transfers to determine net profitability.
+   * @param {EtherscanTransaction} tx - Transaction object to analyze
+   * @returns {Promise<TransactionProfit>} Detailed profit analysis including all value flows
+   */
   private async analyzeTransaction(
     tx: EtherscanTransaction
   ): Promise<TransactionProfit> {
-    // Calculate gas fee
+    // Calculate total gas fees paid for transaction execution
     const gasFee = BigInt(tx.gasUsed) * BigInt(tx.gasPrice);
 
-    // Get internal transactions
+    // Retrieve all internal transactions to analyze value flows
     const internalTxs = await this.etherscanAPI.getInternalTransactions(
       tx.hash
     );
 
-    // Filter relevant internal transactions
+    // Filter internal transactions from contract to main wallet (profit extraction)
     const contractToWalletTxs = internalTxs.filter(
       (itx) =>
         itx.from.toLowerCase() === this.contractAddress &&
         itx.to.toLowerCase() === this.mainWalletAddress
     );
 
+    // Filter internal transactions from contract to transaction originator (refunds/returns)
     const contractToOriginTxs = internalTxs.filter(
       (itx) =>
         itx.from.toLowerCase() === this.contractAddress &&
@@ -138,17 +176,19 @@ export class ContractAnalyzer {
         itx.to.toLowerCase() !== this.mainWalletAddress
     );
 
-    // Calculate values
+    // Calculate total value transferred from contract to main wallet
     const contractToWalletValue = contractToWalletTxs.reduce(
       (sum, itx) => sum + BigInt(itx.value),
       BigInt(0)
     );
 
+    // Calculate total value transferred from contract to transaction originator
     const contractToOriginValue = contractToOriginTxs.reduce(
       (sum, itx) => sum + BigInt(itx.value),
       BigInt(0)
     );
 
+    // Calculate total internal value and net profit after gas fees
     const totalInternalValue = contractToWalletValue + contractToOriginValue;
     const netProfit = totalInternalValue - gasFee;
 
