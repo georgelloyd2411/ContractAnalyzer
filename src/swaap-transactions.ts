@@ -1,54 +1,57 @@
 /**
  * @author Lloyd
- * @date 2025/09/12
- * @description Swaap protocol event log extraction utility that fetches swap transaction data from Ethereum blockchain
+ * @date 2025/09/06
+ * @description Contract transaction extraction utility that retrieves and exports transaction hashes for comprehensive blockchain analysis
  */
 
-import { Log } from "ethers";
-import { EthereumConstants } from "./constants/ethereum.constants"
-import { Ethereum } from "./services/ethereum"
+import { EtherscanAPI } from "./services/etherscan";
+import { Environment } from "./constants/environment";
 import fs from "fs";
 
 /**
- * Main execution function that retrieves all Swaap swap events from a specified block range.
- * Processes blockchain data in batches to avoid RPC limitations and exports transaction hashes to JSON file.
+ * Main execution function that retrieves all transactions for a specific contract within a defined block range.
+ * Processes data in batches to handle API limitations and exports transaction hashes for further analysis.
  */
 const main = async () => {
-  // Define blockchain scanning parameters for comprehensive event retrieval
-  const startBlock = 17598578;                                    // Historical starting block for Swaap protocol analysis
-  const endBlock = await Ethereum.getLatestBlockNumber();        // Current blockchain head for complete coverage
-  const logs: Log[] = [];                                        // Accumulator for all retrieved event logs
-  const steps = 10000;                                           // Batch size to prevent RPC timeout and rate limiting
-
-  console.log(`Fetching logs from ${startBlock} to ${endBlock}`);
+  // Target contract address for comprehensive transaction history retrieval
+  const contract = "0xa836912dce3b96cb9f3f1bf2406d6491ed601f66";
   
-  // Process blockchain events in manageable batches to ensure reliable data retrieval
-  for (let i = startBlock; i < endBlock; i += steps) {
+  // Initialize Etherscan API client with authenticated credentials for blockchain data access
+  const etherscan = new EtherscanAPI(Environment.ETHERSCAN_API_KEY ?? "");
+  
+  // Define blockchain scanning parameters for historical transaction analysis
+  const startBlock = 23247586;                                    // Starting block number for transaction search
+  const endBlock = await etherscan.getLatestBlock();             // Current blockchain head for complete coverage
+  const transactions = [];                                       // Accumulator for all retrieved transactions
+
+  console.log(`Fetching transactions from ${startBlock} to ${endBlock}`);
+  
+  // Process transaction retrieval in batches of 10,000 blocks to prevent API timeouts and rate limiting
+  for (let i = startBlock; i < endBlock; i += 10000) {
     // Calculate batch end block, ensuring it doesn't exceed the target end block
-    const batchEndBlock = endBlock > i + steps ? i + steps : endBlock;
+    const batchEndBlock = endBlock > i + 10000 ? i + 10000 : endBlock;
     
     console.log(`Processing from ${i} to ${batchEndBlock}`);
     
-    // Retrieve Swaap swap events for the current block range batch
-    const events = await Ethereum.getLogsByAddressAndTopic(
-      EthereumConstants.contracts.swaap,           // Target Swaap protocol contract address
-      EthereumConstants.eventTopics.swaap_swap,    // Swap event topic hash for filtering
-      i,                                           // Batch start block number
-      batchEndBlock                                // Batch end block number
+    // Retrieve contract transactions for the current block range batch
+    const list = await etherscan.getContractTransactions(
+      contract,           // Target contract address for transaction filtering
+      i,                  // Batch start block number
+      batchEndBlock       // Batch end block number
     );
     
-    // Accumulate retrieved events into the main logs array
-    logs.push(...events);
+    // Accumulate retrieved transactions into the main collection array
+    transactions.push(...list);
   }
 
-  // Extract and normalize transaction hashes from all retrieved event logs
-  const transactionHashes = logs.map((log) => log.transactionHash.toLowerCase());
+  console.log(`Fetched ${transactions.length} transations.`);
   
-  console.log(`Fetched ${transactionHashes.length} transaction hashes`);
+  // Extract transaction hashes from complete transaction objects for streamlined data processing
+  const hashes = transactions.map((tx) => tx.hash);
   
-  // Export transaction hashes to JSON file for further analysis and processing
-  fs.writeFileSync("./data/transactions.json", JSON.stringify(transactionHashes));
+  // Export transaction hashes to JSON file for persistent storage and further analysis workflows
+  fs.writeFileSync("./data/transactions.json", JSON.stringify(hashes));
 }
 
-// Execute the main event log extraction process
+// Execute the main contract transaction extraction process
 main();

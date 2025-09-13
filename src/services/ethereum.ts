@@ -4,8 +4,8 @@
  * @description Ethereum blockchain utility class providing essential RPC operations for block and log data retrieval
  */
 
-import { Environment } from "@src/constants/environment"
-import { JsonRpcProvider, Log } from "ethers"
+import { Environment } from "@src/constants/environment";
+import { JsonRpcProvider, Log } from "ethers";
 
 /**
  * Ethereum blockchain utility class that provides essential RPC operations for interacting with the Ethereum network.
@@ -17,14 +17,14 @@ export class Ethereum {
    * Used for determining the current state of the blockchain and setting upper bounds for queries.
    * @returns {Promise<number>} The latest block number on the connected Ethereum network
    */
-  static getLatestBlockNumber = async(): Promise<number> => {
+  static getLatestBlockNumber = async (): Promise<number> => {
     // Initialize JSON-RPC provider using configured endpoint for blockchain communication
     const provider = new JsonRpcProvider(Environment.RPC_URL);
 
     // Query the blockchain for the most recent block number
     const latestBlock = await provider.getBlockNumber();
     return latestBlock;
-  }
+  };
 
   /**
    * Retrieves event logs filtered by contract address and event topic within a specified block range.
@@ -35,17 +35,22 @@ export class Ethereum {
    * @param {number} toBlock - Ending block number for log retrieval (inclusive)
    * @returns {Promise<Log[]>} Array of matching log entries, empty array if error occurs
    */
-  static getLogsByAddressAndTopic = async (address: string, topic: string, fromBlock: number, toBlock: number): Promise<Log[]> => {
+  static getLogsByAddressAndTopic = async (
+    address: string,
+    topic: string,
+    fromBlock: number,
+    toBlock: number
+  ): Promise<Log[]> => {
     try {
       // Initialize JSON-RPC provider for blockchain log queries
       const provider = new JsonRpcProvider(Environment.RPC_URL);
 
       // Execute filtered log query with specified parameters
       const logs = await provider.getLogs({
-        address: address,        // Target contract address for log filtering
-        topics: [topic],         // Event topic array for specific event filtering
-        fromBlock: fromBlock,    // Starting block for historical log retrieval
-        toBlock: toBlock         // Ending block to limit query scope
+        address: address, // Target contract address for log filtering
+        topics: [topic], // Event topic array for specific event filtering
+        fromBlock: fromBlock, // Starting block for historical log retrieval
+        toBlock: toBlock, // Ending block to limit query scope
       });
 
       return logs;
@@ -54,5 +59,20 @@ export class Ethereum {
       console.error(error);
       return []; // Return empty array to prevent downstream failures
     }
-  }
+  };
+
+  /**
+   * Retrieves a complete transaction object from the Ethereum blockchain using its unique hash identifier.
+   * Provides comprehensive transaction details including gas information, addresses, and execution status.
+   * @param {string} hash - Unique transaction hash to retrieve from the blockchain
+   * @returns {Promise<TransactionResponse | null>} Complete transaction object with metadata, null if not found
+   */
+  static getTransactionByHash = async (hash: string) => {
+    // Initialize JSON-RPC provider using configured endpoint for blockchain communication
+    const provider = new JsonRpcProvider(Environment.RPC_URL);
+
+    // Query the blockchain for the complete transaction using its hash identifier
+    const tx = await provider.getTransaction(hash);
+    return tx;
+  };
 }
