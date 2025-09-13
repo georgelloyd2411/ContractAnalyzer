@@ -1,5 +1,5 @@
 import axios from "axios";
-import { EtherscanTransaction, InternalTransaction } from "./types";
+import { EtherscanTransaction, InternalTransaction } from "../types/types";
 
 export class EtherscanAPI {
   private apiKey: string;

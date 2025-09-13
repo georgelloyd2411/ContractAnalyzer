@@ -1,14 +1,14 @@
 import dotenv from "dotenv";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
-import { ContractAnalyzer } from "./analyzer";
+import { ContractAnalyzer } from "./services/analyzer";
 import {
   validateDate,
   validateEthereumAddress,
   formatEtherWithSymbol,
   formatEtherWithUSD,
-} from "./utils";
-import { EtherscanAPI } from "./etherscan";
+} from "./utils/utils";
+import { EtherscanAPI } from "./services/etherscan";
 
 // Load environment variables
 dotenv.config();

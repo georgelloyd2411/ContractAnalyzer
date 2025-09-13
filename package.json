@@ -4,7 +4,7 @@
   "description": "Analyze a contract and extract the profit of each transactions",
   "main": "index.js",
   "scripts": {
-    "start": "tsx src/main.ts"
+    "start": "tsx src/check-profit.ts"
   },
   "keywords": [],
   "author": "",

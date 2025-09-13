@@ -3,7 +3,7 @@ import {
   EtherscanTransaction,
   TransactionProfit,
   DailyAnalysis,
-} from "./types";
+} from "../types/types";
 
 export class ContractAnalyzer {
   private etherscanAPI: EtherscanAPI;
