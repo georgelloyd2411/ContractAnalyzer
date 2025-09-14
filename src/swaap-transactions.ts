@@ -47,10 +47,10 @@ const main = async () => {
   console.log(`Fetched ${transactions.length} transations.`);
   
   // Extract transaction hashes from complete transaction objects for streamlined data processing
-  const hashes = transactions.map((tx) => tx.hash);
+  const txs = transactions.map((tx) => tx.hash);
   
   // Export transaction hashes to JSON file for persistent storage and further analysis workflows
-  fs.writeFileSync("./data/transactions.json", JSON.stringify(hashes));
+  fs.writeFileSync("./data/transactions.json", JSON.stringify(txs));
 }
 
 // Execute the main contract transaction extraction process

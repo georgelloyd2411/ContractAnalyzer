@@ -6,7 +6,7 @@
   "scripts": {
     "check-profit": "tsx src/check-profit.ts",
     "swaap-transactions": "tsx src/swaap-transactions.ts",
-    "swaap-contracts": "tsx src/swaap-contracts.ts"
+    "swaap-profit": "tsx src/swaap-profit.ts"
   },
   "keywords": [],
   "author": "",
