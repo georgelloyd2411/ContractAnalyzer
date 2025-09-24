@@ -4,6 +4,8 @@
  * @description Utility functions for Ethereum value formatting and data validation operations
  */
 
+import { ArbitrageType } from "@src/constants/constants";
+
 /**
  * Converts wei value to ether denomination with high precision formatting.
  * Provides accurate decimal representation suitable for financial calculations and display.
@@ -64,4 +66,22 @@ export function validateDate(dateString: string): boolean {
 export function validateEthereumAddress(address: string): boolean {
   // Check for 0x prefix followed by exactly 40 hexadecimal characters
   return /^0x[a-fA-F0-9]{40}$/.test(address);
+}
+
+/**
+ * Get Arbitrage Type from the transaction value
+ * @param value - Transaction value to determine arbitrage type
+ */
+export function getTypeFromValue(value: bigint): ArbitrageType {
+  if (value < 100n) {
+    return ArbitrageType.CLIPPER_STATIC;
+  } else if (value < 1000n) {
+    return ArbitrageType.CLIPPER_DYNAMIC;
+  } else if (value < 10000n) {
+    return ArbitrageType.ZEROX;
+  } else if (value < 100000n) {
+    return ArbitrageType.NATIVE;
+  } else {
+    return ArbitrageType.UNISWAPX_DUCH_ORDER;
+  }
 }

@@ -4,6 +4,8 @@
  * @description Type definitions for Etherscan API responses and blockchain transaction analysis data structures
  */
 
+import { ArbitrageType } from "@src/constants/constants";
+
 /**
  * Represents a standard Ethereum transaction as returned by the Etherscan API.
  * Contains comprehensive transaction metadata including gas information, addresses, and execution details.
@@ -137,6 +139,9 @@ export interface TransactionProfit {
   
   /** Original transaction sender address */
   from: string;
+
+  /** Arbitrage Type */
+  type: ArbitrageType;
 }
 
 /**

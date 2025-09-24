@@ -15,6 +15,8 @@ import {
   formatEtherWithUSD,
 } from "./utils/utils";
 import { EtherscanAPI } from "./services/etherscan";
+import { ArbitrageType } from "./constants/constants";
+import { DailyAnalysis } from "./types/types";
 
 // Load environment variables from .env file for secure configuration management
 dotenv.config();
@@ -198,18 +200,32 @@ async function main() {
     );
 
     // Calculate and display profitable transaction statistics
-    const profitableTransactions = analysis.transactions.filter(
-      (tx) => tx.netProfit > 0
-    ).length;
-    console.log(
-      `✅ Profitable Transactions: ${profitableTransactions}/${analysis.totalTransactions}`
-    );
+    displayArbitrageInformation(analysis, ArbitrageType.CLIPPER_STATIC, ethPrice);
+    displayArbitrageInformation(analysis, ArbitrageType.CLIPPER_DYNAMIC, ethPrice);
     
   } catch (error) {
     // Handle and display any errors that occur during the analysis process
     console.error("❌ Error during analysis:", error);
     process.exit(1);
   }
+}
+
+function displayArbitrageInformation(analysis: DailyAnalysis, type: ArbitrageType, ethPrice: number) {
+  // Caculate and display clipper static arbitrage
+  console.log("\n\n================================================================================");
+  console.log(`Type: ${type}`);
+  const clipperStaticTransactions = analysis.transactions.filter((tx) => tx.type === type && tx.netProfit > 0n );
+  const clipperStaticTransactionsProfit = clipperStaticTransactions.map((tx) => tx.netProfit).reduce((prev, current) => prev + current, 0n);
+  console.log(
+    `${type} Transactions: ${clipperStaticTransactions.length}/${analysis.totalTransactions}`
+  );
+  console.log(
+    `${type} Profit: ${formatEtherWithSymbol(
+      clipperStaticTransactionsProfit
+    )} ${formatEtherWithUSD(clipperStaticTransactionsProfit, ethPrice)} ${
+      clipperStaticTransactionsProfit >= 0 ? "🎉" : "😞"
+    }`
+  );    
 }
 
 // Execute the main application function with error handling for uncaught exceptions

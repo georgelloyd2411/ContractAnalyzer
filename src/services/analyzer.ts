@@ -10,6 +10,7 @@ import {
   TransactionProfit,
   DailyAnalysis,
 } from "../types/types";
+import { getTypeFromValue } from "@src/utils/utils";
 
 /**
  * Comprehensive contract transaction analyzer that provides detailed profit analysis and performance metrics.
@@ -55,7 +56,7 @@ export class ContractAnalyzer {
 
     // Create 24-hour timestamp range starting from 15:00 UTC
     const startTimestamp = Math.floor(
-      Date.UTC(year, month - 1, day, 15, 0, 0) / 1000
+      Date.UTC(year, month - 1, day, 14, 0, 0) / 1000
     );
     const endTimestamp = startTimestamp + 86400; // Add 24 hours in seconds
 
@@ -191,6 +192,7 @@ export class ContractAnalyzer {
     // Calculate total internal value and net profit after gas fees
     const totalInternalValue = contractToWalletValue + contractToOriginValue;
     const netProfit = totalInternalValue - gasFee;
+    const value = BigInt(tx.value);
 
     return {
       hash: tx.hash,
@@ -202,6 +204,7 @@ export class ContractAnalyzer {
       totalInternalValue,
       netProfit,
       from: tx.from,
+      type: getTypeFromValue(value)
     };
   }
 }
