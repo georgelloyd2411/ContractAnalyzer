@@ -10,7 +10,7 @@ const main = async () => {
   const end = await etherscan.getLatestBlock();
   const events = await etherscan.getEventLogsByAddress(contract, topic, start, end);
   console.log(`Fetched ${events.length} events`);
-  fs.writeFileSync("./data/contract-events", JSON.stringify(events));
+  fs.writeFileSync("./data/contract-events.json", JSON.stringify(events));
 }
 
 main();
