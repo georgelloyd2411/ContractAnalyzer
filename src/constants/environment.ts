@@ -21,10 +21,16 @@ export const Environment = {
   ETHERSCAN_BASE_URL: "https://api.etherscan.io/v2/api",
   
   /** Primary wallet address for transaction execution and account management */
-  WALLET_ADDRESS: process.env.WALLET_ADDRESS,
+  WALLET_ADDRESS: process.env.MAIN_WALLET_ADDRESS,
   
-  /** Smart contract address for application-specific contract interactions */
-  CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
+  /** Clipper Smart contract address for application-specific contract interactions */
+  CLIPPER_CONTRACT_ADDRESS: process.env.CLIPPER_CONTRACT_ADDRESS ?? "",
+
+  /** Clipper Smart contract address for application-specific contract interactions */
+  HAHSFLOW_CONTRACT_ADDRESS: process.env.HAHSFLOW_CONTRACT_ADDRESS ?? "",
+
+  /** Clipper Smart contract address for application-specific contract interactions */
+  BEBOP_CONTRACT_ADDRESS: process.env.BEBOP_CONTRACT_ADDRESS ?? "",
   
   /** Ethereum RPC endpoint URL for blockchain network communication */
   RPC_URL: process.env.RPC_URL

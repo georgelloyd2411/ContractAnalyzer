@@ -116,32 +116,14 @@ export interface TransactionProfit {
   /** Unique transaction hash identifier */
   hash: string;
   
-  /** ISO timestamp when the transaction was executed */
-  timestamp: string;
-  
   /** Block number containing the analyzed transaction */
   blockNumber: string;
-  
-  /** Total gas fees paid for transaction execution in wei */
-  gasFee: bigint;
-  
-  /** Total value transferred from contract to main wallet in wei */
-  contractToWalletValue: bigint;
-  
-  /** Total value transferred from contract to transaction originator in wei */
-  contractToOriginValue: bigint;
-  
-  /** Combined internal value transfers from the contract in wei */
-  totalInternalValue: bigint;
-  
-  /** Net profit after deducting gas fees in wei */
-  netProfit: bigint;
-  
-  /** Original transaction sender address */
-  from: string;
 
-  /** Arbitrage Type */
-  type: ArbitrageType;
+  /** Contract address */
+  contract: string;
+
+  /** Total value transferred from contract to main wallet in wei */
+  profit: bigint;
 }
 
 /**
@@ -160,10 +142,4 @@ export interface DailyAnalysis {
   
   /** Count of transactions processed during the analysis period */
   totalTransactions: number;
-  
-  /** Sum of all gas fees paid during the day in wei */
-  totalGasFees: bigint;
-  
-  /** Total internal value transfers recorded for the day in wei */
-  totalInternalValue: bigint;
 }

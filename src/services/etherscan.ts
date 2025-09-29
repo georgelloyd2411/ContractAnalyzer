@@ -155,6 +155,42 @@ export class EtherscanAPI {
   }
 
   /**
+   * Retrieves internal transactions for a specific transaction hash.
+   * Essential for analyzing complex contract interactions and value flows within transactions.
+   * @param {string} txHash - Transaction hash to retrieve internal transactions for
+   * @returns {Promise<InternalTransaction[]>} Array of internal transactions, empty if none found
+   */
+  async getInternalTransactionsByAddress(
+    address: string,
+    startblock: number,
+    endblock: number,
+  ): Promise<InternalTransaction[]> {
+    try {
+      const response = await axios.get(this.baseUrl, {
+        params: {
+          module: "account",                // Account-related API module
+          action: "txlistinternal",         // Internal transaction list action
+          address: address,                   // Target transaction hash
+          apikey: this.apiKey,
+          startblock: startblock,
+          endblock: endblock
+        },
+      });
+
+      if (response.data.status === "1") {
+        return response.data.result;
+      }
+      return []; // Return empty array if no internal transactions found
+    } catch (error) {
+      // Use warning instead of error to prevent disrupting main analysis flow
+      console.warn(
+        `Warning: Could not fetch internal transactions for ${address}: ${error}`
+      );
+      return [];
+    }
+  }
+
+  /**
    * Retrieves the current ETH price in USD from Etherscan's price oracle.
    * Used for converting wei values to USD equivalents in financial analysis.
    * @returns {Promise<number>} Current ETH price in USD, 0 if retrieval fails
