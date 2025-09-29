@@ -15,7 +15,6 @@ import {
   formatEtherWithUSD,
 } from "./utils/utils";
 import { EtherscanAPI } from "./services/etherscan";
-import { ArbitrageType } from "./constants/constants";
 import { DailyAnalysis } from "./types/types";
 import { Environment } from "./constants/environment";
 
@@ -145,6 +144,10 @@ async function main() {
     console.log("\n\n================================================================================");
     console.log("Analyze Bebop Profit");
     analyzeContract(analysis, Environment.BEBOP_CONTRACT_ADDRESS, ethPrice);
+
+    console.log("\n\n================================================================================");
+    console.log("Analyze Approve Profit");
+    analyzeContract(analysis, Environment.APPROVE_CONTRACT_ADDRESS, ethPrice);
     
   } catch (error) {
     // Handle and display any errors that occur during the analysis process

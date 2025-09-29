@@ -15,7 +15,7 @@ config();
  */
 export const Environment = {
   /** Etherscan API key for blockchain data retrieval and transaction monitoring */
-  ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY,
+  ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? "",
   
   /** Base URL for Etherscan API v2 endpoints for consistent API communication */
   ETHERSCAN_BASE_URL: "https://api.etherscan.io/v2/api",
@@ -26,11 +26,14 @@ export const Environment = {
   /** Clipper Smart contract address for application-specific contract interactions */
   CLIPPER_CONTRACT_ADDRESS: process.env.CLIPPER_CONTRACT_ADDRESS ?? "",
 
-  /** Clipper Smart contract address for application-specific contract interactions */
+  /** Hashflow Smart contract address for application-specific contract interactions */
   HAHSFLOW_CONTRACT_ADDRESS: process.env.HAHSFLOW_CONTRACT_ADDRESS ?? "",
 
-  /** Clipper Smart contract address for application-specific contract interactions */
+  /** Bebop Smart contract address for application-specific contract interactions */
   BEBOP_CONTRACT_ADDRESS: process.env.BEBOP_CONTRACT_ADDRESS ?? "",
+
+  /** Approve Smart contract address for application-specific contract interactions */
+  APPROVE_CONTRACT_ADDRESS: process.env.APPROVE_CONTRACT_ADDRESS ?? "",
   
   /** Ethereum RPC endpoint URL for blockchain network communication */
   RPC_URL: process.env.RPC_URL

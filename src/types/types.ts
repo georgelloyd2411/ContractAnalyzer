@@ -143,3 +143,16 @@ export interface DailyAnalysis {
   /** Count of transactions processed during the analysis period */
   totalTransactions: number;
 }
+
+export interface EtherscanEvent {
+  address: string;
+  topics: string[];
+  data: string;
+  blockNumber: string;
+  timeStamp: string;
+  gasPrice: string;
+  gasUsed: string;
+  logIndex: string;
+  transactionHash: string;
+  transactionIndex: string;
+}

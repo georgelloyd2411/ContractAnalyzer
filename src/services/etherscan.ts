@@ -5,7 +5,7 @@
  */
 
 import axios from "axios";
-import { EtherscanTransaction, InternalTransaction } from "../types/types";
+import { EtherscanEvent, EtherscanTransaction, InternalTransaction } from "../types/types";
 
 /**
  * Comprehensive Etherscan API client that provides standardized access to Ethereum blockchain data.
@@ -214,5 +214,56 @@ export class EtherscanAPI {
       console.warn(`Warning: Could not fetch current ETH price: ${error}`);
       return 0;
     }
+  }
+
+  /**
+   * Get event logs of address and filter by topic
+   * @param from : start block number
+   * @param to : end block number
+   * @param address : contract address
+   * @param topic : event topic
+   * @returns contract events
+   */
+  async getEventLogsByAddressAndTopic(from: number, to: number, address: string, topic: string): Promise<EtherscanEvent[]> {
+    try {
+      const response = await axios.get(this.baseUrl, {
+        params: {
+          module: "logs",
+          action: "getLogs",
+          fromBlock: from,
+          toBlock: to,
+          address: address,
+          topic0: topic,
+          apikey: this.apiKey,
+        }
+      });
+      return response.data.result;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  /**
+   * Get all event logs of contract and filtered by topic in given block range
+   * @param address : Contract Address
+   * @param topic : Event topic
+   * @param from : Start block number
+   * @param to : End block number
+   * @returns : Array of events
+   */
+  async getEventLogsByAddress(address: string, topic: string, from: number, to: number): Promise<EtherscanEvent[]> {
+    const result = [];
+    for (let i = from; i <= to; i += 1000) {
+      console.log(`Fetch events from ${i} to ${i + 1000}`);
+      const events = await this.getEventLogsByAddressAndTopic(
+        i,
+        to > i + 1000 ? i + 1000 : to,
+        address,
+        topic
+      );
+      result.push(...events);
+    }
+    return result;
   }
 }

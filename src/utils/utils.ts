@@ -5,6 +5,7 @@
  */
 
 import { ArbitrageType } from "@src/constants/constants";
+import { EtherscanAPI } from "@src/services/etherscan";
 
 /**
  * Converts wei value to ether denomination with high precision formatting.
