@@ -7,7 +7,7 @@
     "check-profit": "tsx src/check-profit.ts",
     "swaap-transactions": "tsx src/swaap-transactions.ts",
     "swaap-profit": "tsx src/swaap-profit.ts",
-    "find-users": "tsx src/find-users.ts"
+    "get-logs": "tsx src/get-logs.ts"
   },
   "keywords": [],
   "author": "",
