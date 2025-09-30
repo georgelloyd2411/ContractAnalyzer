@@ -239,7 +239,7 @@ export class EtherscanAPI {
         }
       });
       console.log(response.data)
-      if (response.data.status === "0" && response.data.message.slice(0, 3) === "Max") {
+      if (response.data.status === "0" && response.data.message.slice(0, 5) === "NOTOK") {
         console.log("Wait for 1 secs and run again");
         await sleep(1000);
         const response = await axios.get(this.baseUrl, {
