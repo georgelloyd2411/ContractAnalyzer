@@ -6,6 +6,7 @@
 
 import axios from "axios";
 import { EtherscanEvent, EtherscanTransaction, InternalTransaction } from "../types/types";
+import { sleep } from "@src/utils/utils";
 
 /**
  * Comprehensive Etherscan API client that provides standardized access to Ethereum blockchain data.
@@ -237,6 +238,22 @@ export class EtherscanAPI {
           apikey: this.apiKey,
         }
       });
+      if (response.data.status !== "1") {
+        console.log("Wait for 1 secs and run again");
+        await sleep(1000);
+        const response = await axios.get(this.baseUrl, {
+          params: {
+            module: "logs",
+            action: "getLogs",
+            fromBlock: from,
+            toBlock: to,
+            address: address,
+            topic0: topic,
+            apikey: this.apiKey,
+          }
+        });
+        return response.data.result;
+      }
       return response.data.result;
     } catch (error) {
       console.error(error);
@@ -262,6 +279,7 @@ export class EtherscanAPI {
         address,
         topic
       );
+      console.log(`Get ${events.length} events`);
       result.push(...events);
     }
     return result;

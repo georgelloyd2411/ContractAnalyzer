@@ -86,3 +86,18 @@ export function getTypeFromValue(value: bigint): ArbitrageType {
     return ArbitrageType.UNISWAPX_DUCH_ORDER;
   }
 }
+
+/**
+ * Creates a promise that resolves after a specified delay
+ * @param {number} milliseconds - Time to sleep in milliseconds
+ * @returns Promise that resolves to 1 after the delay
+ */
+export const sleep = async (milliseconds: number) => {
+  if (milliseconds <= 0)
+    return;
+  return new Promise((res) => {
+    setTimeout(() => {
+      res(1);
+    }, milliseconds);
+  });
+}
