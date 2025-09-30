@@ -238,7 +238,8 @@ export class EtherscanAPI {
           apikey: this.apiKey,
         }
       });
-      if (response.data.status !== "1") {
+      console.log(response.data)
+      if (response.data.status === "0" && response.data.message.slice(0, 3) === "Max") {
         console.log("Wait for 1 secs and run again");
         await sleep(1000);
         const response = await axios.get(this.baseUrl, {
