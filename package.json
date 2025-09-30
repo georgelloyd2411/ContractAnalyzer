@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "check-profit": "tsx src/check-profit.ts",
-    "swaap-transactions": "tsx src/swaap-transactions.ts",
-    "swaap-profit": "tsx src/swaap-profit.ts",
-    "get-logs": "tsx src/get-logs.ts"
+    "get-logs": "tsx src/get-logs.ts",
+    "find-users": "tsx src/find-users.ts"
   },
   "keywords": [],
   "author": "",

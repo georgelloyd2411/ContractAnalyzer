@@ -1,16 +1,30 @@
-import { Environment } from "./constants/environment";
-import { EtherscanAPI } from "./services/etherscan";
 import fs from "fs";
+import pMap from "p-map";
+import { EtherscanEvent } from "./types/types";
+import { Ethereum } from "./services/ethereum";
 
 const main = async () => {
-  const contract = "0xbbbbbbb520d69a9775e85b458c58c648259fad5f";
-  const topic = "0xadd7095becdaa725f0f33243630938c861b0bba83dfd217d4055701aa768ec2e";
-  const start = 19783283;
-  const etherscan = new EtherscanAPI(Environment.ETHERSCAN_API_KEY);
-  const end = await etherscan.getLatestBlock();
-  const events = await etherscan.getEventLogsByAddress(contract, topic, start, end);
-  console.log(`Fetched ${events.length} events`);
-  fs.writeFileSync("./data/contract-events.json", JSON.stringify(events));
+  const events: EtherscanEvent[] = JSON.parse(fs.readFileSync("./data/bebop-events.json", "utf-8"));
+  const hashSet = new Set<string>();
+  events.map((event) => hashSet.add(event.transactionHash));
+  console.log(`Found ${hashSet.size} transactions`);
+  const hashes = [...hashSet.values()];
+
+  const results = await pMap(
+    hashes,
+    async (hash) => {
+      const transaction = await Ethereum.getTransactionByHash(hash);
+      return transaction?.to ?? "";
+    },
+    {
+      concurrency: 100,
+      stopOnError: false
+    }
+  );
+
+  const contracts = new Set<string>(results);
+  console.log(`Found ${contracts.size} contracts`);
+  fs.writeFileSync("./data/bebop-contracts.json", JSON.stringify([...contracts.values()]));
 }
 
 main();
